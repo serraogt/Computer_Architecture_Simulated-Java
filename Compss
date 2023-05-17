@@ -27,11 +27,7 @@ public class Main {
 
 interface CommunicationCard{
 
-    int addr = 0;
-    int size= 0;
     byte[] data= "abc".getBytes();
-
-    ArrayList<String> communicationCard = null;
      public byte[] getCom(int size);
      public void setCom(byte[] b);
 }
