@@ -1,0 +1,73 @@
+import java.util.ArrayList;
+
+public class Main {
+    // this is the computer
+    //or  there should be computer(RAm r, ..... )
+    int addr=0;
+    // bilgisayarın 1 tane addresi mi var??
+    //memorydeki locationu mu kastediyor??
+    int size=0;
+
+    public void writeTo(Piece p){
+        p.setMem("hbghj".getBytes(),3343);
+    }
+    public void readFrom(Piece p){
+        p.getMem(addr, size);
+    }
+
+    public static void main(String[] args) {
+
+    }
+}
+
+
+interface Piece{
+
+    int addr = 0;
+    int size= 0;
+    byte[] data= "abc".getBytes();
+
+    ArrayList<String> communicationCard = null;
+     public byte[] getMem(int addr, int size);
+     public void setMem(byte[] data, int addr);
+}
+class RAM implements Piece {
+
+    public byte[] getMem(int addr, int size) {
+        return new byte[0];}
+    public void setMem(byte[] data, int addr) {}
+
+
+}
+
+class Ethernet implements Piece{
+    public byte[] getMem(int addr, int size) {
+        return new byte[0];
+    }
+
+    public void setMem(byte[] data, int addr) {
+
+    }
+}
+
+class TokenRing implements Piece{
+    public byte[] getMem(int addr, int size) {
+        return new byte[0];
+    }
+
+    public void setMem(byte[] data, int addr) {
+
+    }
+
+
+
+}
+
+
+class Computer {
+    RAM ram= new RAM();
+    Ethernet ethernet=new Ethernet();
+    TokenRing tokenRing=new TokenRing();
+
+
+        }
