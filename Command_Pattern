@@ -1,0 +1,101 @@
+interface Command {
+    void execute();
+    String getName();
+}
+
+ class ReadCardCommand implements Command{
+    private final CommunicationCard communicationCard;
+    private final int size;
+    private String name;
+
+    public ReadCardCommand(CommunicationCard communicationCard, int size){
+        this.communicationCard = communicationCard;
+        this.size = size;
+        this.name = "Read-Card";
+    }
+
+    @Override
+    public void execute() {
+        //this method traverses the ArrayList which contains Byte[] or byte[] and finds the related entries' length. Then returns it to a.
+        //while we are outputting it String(a) makes those bytes into latin characters.
+        byte[] a = communicationCard.getCom(size);
+        System.out.println("Read data from card: " + new String(a));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+}
+
+
+class ReadMemoryCommand implements Command{
+    private MemoryCard memoryCard;
+    private int address;
+    private int size;
+    private String name;
+
+    public ReadMemoryCommand(MemoryCard memoryCard, int address, int size){
+        this.memoryCard = memoryCard;
+        this.address = address;
+        this.size = size;
+        this.name = "Read-Memory";
+    }
+
+    @Override
+    public void execute() {
+        byte[] a =  memoryCard.getMem(address,size);
+        System.out.println("Read data from RAM: " + new String(a));
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class WriteCardCommand implements Command{
+    private final CommunicationCard communicationCard;
+    private final byte[] data;
+    private String name;
+
+    public WriteCardCommand(CommunicationCard communicationCard, byte[] data) {
+        this.communicationCard = communicationCard;
+        this.data = data;
+        this.name = "Write-Card";
+    }
+
+    @Override
+    public void execute() {
+        int a = communicationCard.setCom(data);
+        System.out.println("Write result for card: " + a);
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+
+class WriteMemoryCommand implements Command{
+    private MemoryCard memoryCard;
+    private byte[] data;
+    private int address;
+    private String name;
+
+    public WriteMemoryCommand(MemoryCard memoryCard, byte[] data, int address){
+        this.memoryCard = memoryCard;
+        this.data = data;
+        this.address = address;
+        this.name = "Write-Memory";
+    }
+
+    @Override
+    public void execute() {
+        int a = memoryCard.setMem(data,address);
+        System.out.println("Write result for RAM: " + a);
+    }
+
+    public String getName() {
+        return name;
+    }
+}
