@@ -1,0 +1,139 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
+
+interface EventLogObserver {
+    void taskCompleted(String taskName, String puName); //Update
+    String getObserverName();
+    void printEventLog();
+}
+class SystemEventLog implements EventLogObserver {
+    private ArrayList<String> eventLog = new ArrayList<>();
+    private String observerName = "System Event Log";
+
+    @Override
+    public void taskCompleted(String taskName, String puName) {
+        // Update the log file with the completed task information
+        System.out.println("Task completed: " + taskName + " by " + puName);
+        taskName = taskName + " " + puName;
+        // Update the log file here...
+        eventLog.add(taskName);
+    }
+
+    public void printEventLog(){
+        System.out.println("The Log is: ");
+        for(int i = 0; i<eventLog.size(); i++){
+            System.out.println(eventLog.get(i));
+        }
+    }
+
+    public String getObserverName() {
+        return observerName;
+    }
+}
+
+
+
+/**
+ * This is a subject class for observer pattern.
+ * If we want to add Graphical Processing Unit in the next versions
+ * it will be easily added.
+ */
+abstract class ProcessingUnit {
+    protected Queue<Command> commands;
+    protected String name;
+    protected EventLogObserver eventLogObserver; // Reference to the observer
+    protected Command command;
+    abstract void setEventLogObserver(EventLogObserver observer);
+    abstract Command getCommand();
+    abstract void execute();
+    abstract void notifyObservers();
+    abstract void removeCommand();
+    public void executeCommand(){
+        while(!commands.isEmpty()){
+            getCommand();
+            hook1();
+            execute();
+            hook2();
+            notifyObservers();
+            hook3();
+            removeCommand();
+            hook4();
+        }
+        System.out.println(name + " has completed the thread.");
+        System.out.println(" ");
+    }
+    public void setTasks(Command... tasks) {
+        Collections.addAll(commands, tasks);
+    }
+
+    public void hook1(){}
+    public void hook2(){}
+    public void hook3(){}
+    public void hook4(){}
+
+}
+
+class CPU extends ProcessingUnit{
+
+
+    public CPU(String name) {
+        super.commands = new LinkedList<>();
+        super.name = name;
+    }
+
+    @Override
+    public Command getCommand() {
+        command = super.commands.peek();
+        return command;
+    }
+
+    @Override
+    public void execute() {
+        command.execute();
+    }
+         //run the commands
+
+    @Override
+    public void removeCommand() {
+        super.commands.remove();
+    }
+
+    public void setTasks(Command... tasks) {
+        Collections.addAll(super.commands, tasks);
+    }
+
+    public void setEventLogObserver(EventLogObserver observer) {
+        eventLogObserver = observer;
+    }
+
+    @Override
+    public void notifyObservers() {
+        if (eventLogObserver != null) {
+            eventLogObserver.taskCompleted(command.getName(), this.name);
+            // Notify the observer
+        }
+    }
+
+    @Override
+    public void hook1() {
+        System.out.println(command.getName() + " has been retrieved.");
+    }
+
+    @Override
+    public void hook2() {
+        System.out.println(command.getName() + " executed.");
+    }
+
+    @Override
+    public void hook3() {
+        System.out.println(eventLogObserver.getObserverName() + " is notified.");
+    }
+
+    @Override
+    public void hook4() {
+        System.out.println("The command has been removed.");
+        System.out.println(" ");
+    }
+}
