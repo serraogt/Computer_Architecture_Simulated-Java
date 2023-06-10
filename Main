@@ -1,0 +1,175 @@
+//Elmira Aras
+//Serra Öğütcen
+//Enes Rayman
+//Halil Arda Aşılıoğlu
+//PROCESS MODELING
+
+import java.util.ArrayList;
+
+public class Main {
+    public static void main(String[] args) {
+        Computer comp = new Computer();
+        byte[] dataToWrite = "Hello, Ufuk Hocamm!".getBytes();
+
+        //TASKS FOR CPU1 -> Write data to ethernet card so that CPU can do other tasks.
+        Command command1 = new WriteCardCommand(comp.getEthernetAdapter(),dataToWrite);
+        comp.setTasksToCPU(comp.getCpu1(),command1);
+        //18
+
+        //TASKS FOR CPU2 -> Read from ETHERNET, Write it to Mem Location, Write it to TOKEN-RING
+        Command command2 = new ReadCardCommand(comp.getEthernetAdapter(),19);
+        Command command3 = new WriteMemoryCommand(comp.getMemoryCard(),dataToWrite, 20);
+        Command command4 = new WriteCardCommand(comp.getTokenAdapter(), dataToWrite);
+        comp.setTasksToCPU(comp.getCpu2(),command2,command3,command4);
+
+
+        //Executing the computer
+        comp.startComputer();
+        comp.shutdownComputer();
+    }
+
+}
+
+    class Computer {
+    private ProcessingUnit cpu1;
+    private ProcessingUnit cpu2;
+    private MemoryCard memoryCard;
+    private CommunicationCard ethernetAdapter;
+    private CommunicationCard tokenAdapter;
+    private EventLogObserver eventLog;
+
+    public Computer() {
+        cpu1 = new CPU("CPU1");
+        cpu2 = new CPU("CPU2");
+        memoryCard = new RamAdapter(new RAM());
+        ethernetAdapter = new EthernetAdapter(new ETHERNET());
+        tokenAdapter = new TokenAdapter(new TOKEN_RING());
+        eventLog = new SystemEventLog();
+        cpu1.setEventLogObserver(eventLog);
+        cpu2.setEventLogObserver(eventLog);
+    }
+
+    public void setTasksToCPU(ProcessingUnit pu,Command... commands){
+        pu.setTasks(commands);
+    }
+
+    public void startComputer() {
+        System.out.println("Computer started successfully.");
+        System.out.println();
+        cpu1.executeCommand();
+        cpu2.executeCommand();
+    }
+
+    public void shutdownComputer() {
+        System.out.println();
+        System.out.println("Computer shutdown successfully.");
+        System.out.println();
+        eventLog.printEventLog();
+    }
+
+    public ProcessingUnit getCpu1() {
+        return cpu1;
+    }
+
+    public ProcessingUnit getCpu2() {
+        return cpu2;
+    }
+
+    public MemoryCard getMemoryCard() {
+        return memoryCard;
+    }
+
+    public CommunicationCard getEthernetAdapter() {
+        return ethernetAdapter;
+    }
+
+    public CommunicationCard getTokenAdapter() {
+        return tokenAdapter;
+    }
+}
+
+class ETHERNET {
+    private ArrayList<Byte[]> dataList = new ArrayList<>();
+    public Byte[] read(int size) {
+        // Simulate reading data from the ETHERNET card
+        Byte[] solution = null;
+        for(Byte[] dataSet: dataList){
+            if(dataSet.length == size){
+                solution = dataSet;
+            }
+        }
+        // Logic to read data
+        if(solution != null){
+            Byte[] a = solution;
+            dataList.remove(solution);
+            return a;
+        }else{
+            return null;
+        }
+    }
+
+    public int write(Byte[] data) {
+        // Simulate writing data to the ETHERNET card
+        dataList.add(data);
+        // Logic to write data
+        return data.length; // Return the size as an indication of success
+    }
+}
+
+ class TOKEN_RING {
+    private ArrayList<int[]> dataList = new ArrayList<>();
+    public int[] receive(int size){
+        //Simulates receiving data from the TOKEN-RING card.
+        int[] solution = null;
+        for(int[] dataSet: dataList){
+            if(dataSet.length == size){
+                solution = dataSet;
+            }
+        }
+        //Logic to send data
+        if(solution != null){
+            int[] a = solution;
+            dataList.remove(solution);
+            return a;
+        }else{
+            return null;
+        }
+    }
+
+    public int send(int[] data, int size){
+        // Simulate sending data to the TOKEN-RING card
+        // Logic to send data
+        int[] sendData = new int[size]; //this method creates this array specifically for holding
+        //the data to be sent.
+        System.arraycopy(data, 0, sendData, 0, size); //to copy the data from input data
+        // to the sendData array.
+        dataList.add(sendData);
+        return sendData.length;
+    }
+}
+
+class RAM {
+    byte[] memory = new byte[1000];
+
+    public byte[] get(int addr, int size){
+        int i = size;
+        byte[] requested = new byte[size];
+        for(i=0; i<size; i++){
+            requested[i] = memory[addr];
+            addr++;
+        }
+        return requested;
+    }
+
+    public int set(byte[] data, int addr){
+        if(addr < 0 || addr + data.length > memory.length){
+            throw new IllegalArgumentException("Invalid memory address or size");
+        }
+
+        for(int i = 0; i < data.length; i++){
+            memory[addr] = data[i];
+            addr++;
+        }
+        return addr;
+    }
+}
