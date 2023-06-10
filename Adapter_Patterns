@@ -1,0 +1,94 @@
+/**
+ * This is the interface for TokenAdapter and EthernetAdapter.
+ * This can be used for other types of communication cards so
+ * this interface choice was the best strategy to make our code
+ * to fulfill the OCP.
+ */
+interface CommunicationCard {
+    byte[] getCom(int size);
+    int setCom(byte[] data);
+}
+
+interface MemoryCard {
+    byte[] getMem(int addr, int size);
+    int setMem(byte[] data, int addr);
+
+}
+
+class TokenAdapter implements CommunicationCard{
+    private final TOKEN_RING communicationCard;
+    public TokenAdapter(TOKEN_RING communicationCard){
+        this.communicationCard = communicationCard;
+    }
+
+    @Override
+    public byte[] getCom(int size) {
+        int[] data = communicationCard.receive(size);
+        //Convert int[] to byte[]
+        byte[] byteData = new byte[data.length];
+        for(int i = 0; i < data.length; i++){
+            byteData[i] = (byte) data[i];
+        }
+        return byteData;
+    }
+
+    @Override
+    public int setCom(byte[] data) {
+        //Convert byte[] to int[]
+        int[] intData = new int[data.length];
+        for(int i = 0; i < data.length; i++){
+            intData[i] = data[i];
+        }
+        return communicationCard.send(intData, data.length);
+    }
+}
+
+
+class EthernetAdapter implements CommunicationCard{
+    private final ETHERNET communicationCard;
+
+    public EthernetAdapter(ETHERNET communicationCard) {
+        this.communicationCard = communicationCard;
+    }
+    @Override
+    public byte[] getCom(int size) {
+        Byte[] data = communicationCard.read(size);
+        //Convert Byte[] to byte[]
+        byte[] byteData = new byte[data.length];
+        for (int i = 0; i < data.length; i++){
+            byteData[i] = data[i];
+        }
+        return byteData;
+    }
+
+    @Override
+    public int setCom(byte[] data) {
+        // Convert byte[] to Byte[]
+        Byte[] byteData = new Byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            byteData[i] = data[i];
+        }
+        return communicationCard.write(byteData);
+    }
+}
+
+
+
+class RamAdapter implements MemoryCard{
+    private final RAM ram;
+
+    public RamAdapter(RAM ram){
+        this.ram = ram;
+    }
+
+    @Override
+    public byte[] getMem(int addr, int size){
+        return ram.get(addr,size);
+    }
+
+    @Override
+    public int setMem(byte[] data, int addr){
+        return ram.set(data,addr);
+    }
+
+}
